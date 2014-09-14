@@ -1,79 +1,93 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 
-```{r}
+
+```r
 require(plyr)
-require(ggplot2)
+```
 
 ```
-## loading data
-```{r}
+## Loading required package: plyr
+```
 
+```r
+require(ggplot2)
+```
+
+```
+## Loading required package: ggplot2
+```
+## loading data
+
+```r
    activity <- read.csv("C:/repdata/activity.csv", header = TRUE)
    activity <- transform(activity, date= as.Date(date))
-
 ```
 ## WHAT IS THE MEAN
 
 # find the total number of steps.
-```{r}
-     dailysteps <- ddply(activity, ~date, summarize, steps = sum(steps))
 
+```r
+     dailysteps <- ddply(activity, ~date, summarize, steps = sum(steps))
 ```
 # plot a histogram.
-```{r}
+
+```r
      p <- ggplot(dailysteps, aes(steps))
      p <- p + geom_histogram(fill = "red", color = "black")
      p <- p + ggtitle("Total steps for day")
      p + xlab("Steps per day")
+```
 
 ```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
+
+![plot of chunk unnamed-chunk-4](./PA1_template_files/figure-html/unnamed-chunk-4.png) 
 
 # Calculate mean and mediean total number of steps taken daily.
 # Average of steps taken for intervals.
 
-```{r}
+
+```r
    meansteps  <- mean(dailysteps$steps, na.rm = TRUE)
    mediansteps <- median(dailysteps$steps, na.rm = TRUE)
    avgstepsperinterval <- ddply(activity, ~interval, 
                           summarize,
                           mean = mean(steps, na.rm = TRUE))
-
 ```
 
 # 5 minute interval plot.
 
-```{r}
+
+```r
    p <- ggplot(avgstepsperinterval, aes(interval, mean)) + geom_line()
    p <- p + ggtitle("Average daily activity pattern")
    p + xlab("Interval") + ylab("Number of steps")
-
 ```
+
+![plot of chunk unnamed-chunk-6](./PA1_template_files/figure-html/unnamed-chunk-6.png) 
 
 # 5 min interval with max number of steps
 
-```{r}
+
+```r
     maxid <- which.max(avgstepsperinterval$mean)
     maxint <- avgstepsperinterval$interval[maxid]
-
 ```
 
 # 5 min interval ave across days.
 
-```{r}
-nasrows <-  sum(apply(is.na(activity), 1, any))
 
+```r
+nasrows <-  sum(apply(is.na(activity), 1, any))
 ```
 
 # Replace all NAs. 
 
-```{r}
+
+```r
 na.replace <- function(act) { 
      ddply(act, ~interval, function(dd) {
                 steps <- dd$steps
@@ -81,41 +95,48 @@ na.replace <- function(act) {
                 return(dd)
                 })
 }
-
 ```
 # original dataset with no missing data.
 
-```{r}
-    activityin <- na.replace(activity)
 
+```r
+    activityin <- na.replace(activity)
 ```
 
 # total number of steps taken by day.
 
-```{r}
-dailystepsin <- ddply(activityin, ~date, summarise, steps = sum(steps))
 
+```r
+dailystepsin <- ddply(activityin, ~date, summarise, steps = sum(steps))
 ```
 # Histogram of total number of steps.
 
-```{r}
+
+```r
      p <- ggplot(dailystepsin, aes(steps))
      p <- p + geom_histogram(fill = "blue", color = "black")
      p <- p + ggtitle("Total number of steps ")
      p + xlab("Steps per day")
+```
 
 ```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
+
+![plot of chunk unnamed-chunk-12](./PA1_template_files/figure-html/unnamed-chunk-12.png) 
 
 # Calculate mean and median totals.
 
-```{r}
+
+```r
      dailystepsinmean <- mean(dailystepsin$steps)
      dailystepsinmedian <- median(dailystepsin$steps)
 ```
 
 # Create an new weekpart weekday.
 
-```{r}
+
+```r
      weekparts <- c("Weekday","Weekend")
      byday <- function(date) {
      day <- weekdays(date)
@@ -126,19 +147,20 @@ dailystepsin <- ddply(activityin, ~date, summarise, steps = sum(steps))
      return(part)
 }
 activityin$weekpart <- sapply(activityin$date, byday)
-
 ```
 # Panel plot containing time series of 5-min interval and average number of steps take across weekdays.
 
-```{r}
+
+```r
 avgsteps <- ddply(activityin, .(interval, weekpart),
                   summarise, 
                   mean = mean(steps))
-
 
         p <- ggplot(avgsteps, aes(x = interval, y = mean))
         p <- p + geom_line() + facet_grid(. ~weekpart,)
         p <- p + ggtitle("Activity on weekdays and weekends")
         p + xlab("Interval") + ylab("Number of Steps")
 ```
+
+![plot of chunk unnamed-chunk-15](./PA1_template_files/figure-html/unnamed-chunk-15.png) 
                               
