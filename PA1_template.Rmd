@@ -1,9 +1,12 @@
 # REPRODUCIBLE RESEARCH Project 1
+```{r setoptions}
+```
+---
 output: 
   html_document:
     keep_md: true
+---
 
-# Load needed heights
 ```{r}
 require(plyr)
 require(ggplot2)
